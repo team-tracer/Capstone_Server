@@ -4,6 +4,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var mongoose=require("./lib/mongoose");
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -43,6 +44,7 @@ app.use(function(err, req, res, next) {
 
 app.listen(8000,()=>{
   console.log("Succeses connection: 8000");
+  mongoose.connectDB();
 })
 
 module.exports = app;
