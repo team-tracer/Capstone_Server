@@ -18,31 +18,28 @@ router.post("/post/signup", async (req, res, next) => {
 
   try {
     const result = await userModel.findOne({ id: userID });
-    if(!result){
-      let register_user=new userModel();
-      register_user.id=userID;
-      register_user.name=name;
-      register_user.imgSrc=imgSrc;
+    if (!result) {
+      let register_user = new userModel();
+      register_user.id = userID;
+      register_user.name = name;
+      register_user.imgSrc = imgSrc;
       register_user.save();
       console.log("ID: " + userID + "is not here We are trying to save your ID");
     }
-    else{
-      console.error("ID:" + userID + "Searching err");
-    
-    }
   } catch (err) {
+    console.error("ID:" + userID + "Searching err");
     return console.error(err);
   }
   res.end();
 });
 
-router.post("/post/userDrop",async(req,res,next)=>{
-  const userID=req.body.userID;
-  const result=await userModel.deleteOne({id:userID});
-  if(result){
-    console.log(userID+ "is delete");
-  }else{
-    console.log(userID+" is not here");
+router.post("/post/userDrop", async (req, res, next) => {
+  const userID = req.body.userID;
+  const result = await userModel.deleteOne({ id: userID });
+  if (result) {
+    console.log(userID + "is delete");
+  } else {
+    console.log(userID + " is not here");
   }
   res.end();
 });
@@ -56,6 +53,43 @@ router.post("/post/loadMap", (req, res) => {
     "posY": receive_body.posY
   }
   res.send(obj);
+});
+
+router.post("/post/acceptFrd", async (req, res, next) => {
+  const receive_body = req.body;
+  console.log(receive_body); // fromID가 친구요청한 사람, toID가 친구요청 받은 사람
+  let obj = {};
+  let fromUser = await userModel.findOne({ "id": receive_body.fromID });
+  if (fromUser) {
+    for(let i=0; i<fromUser.friends.length; i++){
+      if(fromUser.friends[i]==receive_body.toID){
+        obj.fromName="already";
+        break;
+      }
+      if(i==fromUser.friends.length-1){
+        fromUser.friends.push({ id: receive_body.toID });
+        fromUser.save();
+        obj.fromName = fromUser.name;
+      }
+    }
+  }
+  let toUser = await userModel.findOne({ "id": receive_body.toID });
+  if (toUser) {
+    for(let i=0; i<toUser.friends.length; i++){
+      if(toUser.friends[i]==receive_body.fromID){
+        obj.toName="already";
+        break;
+      }
+      if(i==toUser.friends.length-1){
+        toUser.friends.push({ id: receive_body.fromID });
+        toUser.save();
+        obj.toName = toUser.name;
+      }
+    }
+  }
+  console.log("obj: ",obj);
+  res.send(obj);
+  res.end();
 });
 
 module.exports = router;
