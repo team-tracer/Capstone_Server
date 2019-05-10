@@ -59,41 +59,56 @@ router.post("/post/acceptFrd", async (req, res, next) => {
   const receive_body = req.body;
   console.log(receive_body); // fromID가 친구요청한 사람, toID가 친구요청 받은 사람
   let obj = {};
+  if(receive_body.fromID === receive_body.toID){
+	console.log("same ID so return");
+	obj.type=500;
+	res.send(obj);
+	res.end();
+	return;
+  }
   let fromUser = await userModel.findOne({ "id": receive_body.fromID });
   if (fromUser) {
-    if (fromUser.friends.length == 0) {
+    if (fromUser.friends.length === 0) {
       fromUser.friends.push({ id: receive_body.toID });
       fromUser.save();
       obj.fromName = fromUser.name;
+      obj.type=200;
     } else {
       for (let i = 0; i < fromUser.friends.length; i++) {
-        if (fromUser.friends[i] == receive_body.toID) {
+        if (fromUser.friends[i].id === receive_body.toID) {
+	  console.log("1already here");
+	  obj.type=404;
           break;
         }
         if (i == fromUser.friends.length - 1) {
           fromUser.friends.push({ id: receive_body.toID });
           fromUser.save();
           obj.fromName = fromUser.name;
+	  obj.type=200;
         }
       }
     }
   }
   let toUser = await userModel.findOne({ "id": receive_body.toID });
   if (toUser) {
-    if (toUser.friends.length == 0) {
+    if (toUser.friends.length === 0) {
       toUser.friends.push({ id: receive_body.fromID });
       toUser.save();
       obj.toName = toUser.name;
+      obj.type=200;
     }
     else {
       for (let i = 0; i < toUser.friends.length; i++) {
-        if (toUser.friends[i] == receive_body.fromID) {
+        if (toUser.friends[i].id === receive_body.fromID) {
+	  obj.type=404;
+	  console.log("2already here");
           break;
         }
         if (i == toUser.friends.length - 1) {
           toUser.friends.push({ id: receive_body.fromID });
           toUser.save();
           obj.toName = toUser.name;
+	  obj.type=200;
         }
       }
     }
