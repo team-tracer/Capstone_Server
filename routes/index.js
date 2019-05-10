@@ -61,33 +61,44 @@ router.post("/post/acceptFrd", async (req, res, next) => {
   let obj = {};
   let fromUser = await userModel.findOne({ "id": receive_body.fromID });
   if (fromUser) {
-    for(let i=0; i<fromUser.friends.length; i++){
-      if(fromUser.friends[i]==receive_body.toID){
-        obj.fromName="already";
-        break;
-      }
-      if(i==fromUser.friends.length-1){
-        fromUser.friends.push({ id: receive_body.toID });
-        fromUser.save();
-        obj.fromName = fromUser.name;
+    if (fromUser.friends.length == 0) {
+      fromUser.friends.push({ id: receive_body.toID });
+      fromUser.save();
+      obj.fromName = fromUser.name;
+    } else {
+      for (let i = 0; i < fromUser.friends.length; i++) {
+        if (fromUser.friends[i] == receive_body.toID) {
+          break;
+        }
+        if (i == fromUser.friends.length - 1) {
+          fromUser.friends.push({ id: receive_body.toID });
+          fromUser.save();
+          obj.fromName = fromUser.name;
+        }
       }
     }
   }
   let toUser = await userModel.findOne({ "id": receive_body.toID });
   if (toUser) {
-    for(let i=0; i<toUser.friends.length; i++){
-      if(toUser.friends[i]==receive_body.fromID){
-        obj.toName="already";
-        break;
-      }
-      if(i==toUser.friends.length-1){
-        toUser.friends.push({ id: receive_body.fromID });
-        toUser.save();
-        obj.toName = toUser.name;
+    if (toUser.friends.length == 0) {
+      toUser.friends.push({ id: receive_body.fromID });
+      toUser.save();
+      obj.toName = toUser.name;
+    }
+    else {
+      for (let i = 0; i < toUser.friends.length; i++) {
+        if (toUser.friends[i] == receive_body.fromID) {
+          break;
+        }
+        if (i == toUser.friends.length - 1) {
+          toUser.friends.push({ id: receive_body.fromID });
+          toUser.save();
+          obj.toName = toUser.name;
+        }
       }
     }
   }
-  console.log("obj: ",obj);
+  console.log("obj: ", obj);
   res.send(obj);
   res.end();
 });
