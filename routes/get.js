@@ -8,11 +8,12 @@ let userModel = mongoose.userModel;
 
 router.get("/loadFrd",async(req,res,next)=>{
     const userID=req.query.id;
+    console.log(userID);
     let friendList=[];
     let obj=[];
     let user=await userModel.findOne({"id":userID});
-    console.log("queryID: ",userID, "Name: ",user.name);
     if(user){
+    	console.log("queryID: ",userID, "Name: ",user.name);
         for(let i=0; i<user.friends.length; i++){
             friendList.push(user.friends[i].id);
         }
@@ -33,3 +34,4 @@ router.get("/loadFrd",async(req,res,next)=>{
     console.log(obj);
     res.end();
 });
+module.exports= router;
