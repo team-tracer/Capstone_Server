@@ -121,14 +121,12 @@ router.post("/delFrd", async (req, res, next) => {
     user.friends.splice(delIdx, 1);
     user.save()
       .then(() => {
-        console.log(delUser, "user delete!");
+        console.log("user delete!");
       })
-      .catch(() => {
-        console.error("delUser error");
+      .catch((err) => {
+        console.error("delUser error",err);
       })
 
-  } else {
-    console.log(delUser, " is not here");
   }
   res.end();
 });
