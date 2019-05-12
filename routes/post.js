@@ -114,4 +114,27 @@ router.post("/acceptFrd", async (req, res, next) => {
   res.end();
 });
 
+router.post("/delFrd",async(req,res,next)=>{
+  let user=await userModel.findOne({"id":req.body.userID});
+  const delUser=req.body.delID;
+  if(user){
+    let friends=user.friends;
+    for(let id in friends){
+      if(id===delUser){
+        user.friends.splice(id, 1);
+        user.save()
+        .then(()=>{
+          console.log(delUser, "user delete!");
+        })
+        .catch(()=>{
+          console.error("delUser error");
+        })
+      }
+    }
+  }else{
+    console.log(delUser," is not here");
+  }
+  res.end();
+});
+
 module.exports = router;
