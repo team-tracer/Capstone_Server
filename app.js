@@ -54,7 +54,7 @@ var io=socketio.listen(server);
 io.sockets.on('connection',(socket)=>{
   console.log("소켓연결이 되었습니다.");
 
-  socket.on("stepDection",async(data)=>{// id, posX, posY
+  socket.on("stepDetection",async(data)=>{// id, posX, posY
     var userID=data.id;
     var posX=data.posX;
     var posY=data.posY;

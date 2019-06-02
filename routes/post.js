@@ -135,7 +135,7 @@ router.post("/getToken",async(req,res)=>{
   // userID, tokenID
   var userID=req.body.userID;
   var tokenID=req.body.tokenID;
-  var user=await userModel.find({"id":userID});
+  var user=await userModel.findOne({"id":userID});
   if(user){
     if(user.notify_token==null){
       console.log(tokenID+"토근 저장 완료");
