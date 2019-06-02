@@ -20,7 +20,6 @@ router.post("/signup", async (req, res, next) => {
       register_user.name = name;
       register_user.imgSrc = imgSrc;
       register_user.save();
-      console.log("ID: " + userID + "is not here We are trying to save your ID");
     }
   } catch (err) {
     console.error("ID:" + userID + "Searching err");
@@ -42,7 +41,6 @@ router.post("/userDrop", async (req, res, next) => {
 
 router.post("/loadMap", (req, res) => {
   const receive_body = req.body;
-  console.log("body:", receive_body);
   const obj = {
     "path": "http://13.209.43.170:8000/images/" + receive_body.imgName,
     "posX": receive_body.posX,

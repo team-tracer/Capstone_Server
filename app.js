@@ -54,20 +54,11 @@ var io=socketio.listen(server);
 io.sockets.on('connection',(socket)=>{
   console.log("소켓연결이 되었습니다.");
 
-  socket.on("stepDetection",async(data)=>{// id, posX, posY
+  socket.on("stepDetection",(data)=>{// id, posX, posY
     var userID=data.id;
     var posX=data.posX;
     var posY=data.posY;
-    var user=await userModel({"id":userID});
-    if(user){
-      console.log("initial: x= "+posX+" y= "+posY);
-      user.isTracking=true;
-      user.pos_x=posX;
-      user.pos_y=posY;
-      user.save();
-    }else{
-      console.log("해당 유저가 없습니다.");
-    }
+userModel.where({"id":userID}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true},()=>{});
   });
 
   socket.on("disconnect",(id)=>{
