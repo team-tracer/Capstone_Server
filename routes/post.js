@@ -130,4 +130,21 @@ router.post("/delFrd", async (req, res, next) => {
   }
   res.end();
 });
+
+router.post("/getToken",async(req,res)=>{
+  // userID, tokenID
+  var userID=req.body.userID;
+  var tokenID=req.body.tokenID;
+  var user=await userModel.find({"id":userID});
+  if(user){
+    if(user.notify_token==null){
+      console.log(tokenID+"토근 저장 완료");
+      user.notify_token=tokenID;
+      user.save();
+    }
+  }else{
+    console.log("해당 아이디인 유저가 없습니다,");
+  }
+  res.end();
+})
 module.exports = router;
