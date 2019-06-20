@@ -21,11 +21,13 @@ router.get("/loadFrd",async(req,res,next)=>{
                 obj.push({
                     "profile_image":oppoUser.imgSrc,
                     "nickname":oppoUser.name,
-                    "userID":oppoUser.id
+                    "userID":oppoUser.id,
+		    "token":oppoUser.notify_token
                 });
             }
         }
         if(obj){
+	    console.log(obj);
             res.send(obj);
         }
     }

@@ -67,8 +67,8 @@ userModel.where({"id":userID}).updateOne({"pos_x":posX, "pos_y":posY, "isTrackin
         console.error(err);
         return;
       }
-      res.posX=null;
-      res.posY=null;
+      //res.posX=null;
+      //res.posY=null;
       res.isTracking=false;
     });
   });
