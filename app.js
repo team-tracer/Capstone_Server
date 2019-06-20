@@ -12,6 +12,7 @@ var app = express();
 
 var userModel=mongoose.userModel;
 var socket_ids=[];
+var toFrom=[] // [보내는 사람]=
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -58,7 +59,11 @@ io.sockets.on('connection',(socket)=>{
     socket_ids[id]=socket.id;
   });
 
-  socket.on("request_oppoPoint",(oppo_id)=>{
+  socket.on("request_oppoPoint",(data)=>{
+    const from_id=data.from_id;
+    const to_id=data.to_id;
+    console.log("보낸 사람: "+from_id+ " 받은 사람: "+to_id);
+    toFrom[from_id]=to_id;
     userModel.findOne({"id":oppo_id},(err,data)=>{
       console.log(oppo_id+"의 위치를 전송합니다.");
       let obj={
@@ -71,14 +76,13 @@ io.sockets.on('connection',(socket)=>{
 
   socket.on("stepDetection",async(data)=>{// id, posX, posY
     var send_id=data.id;
-    var recv_id=data.oppo_id;
+    var recv_id=toFrom[send_id];
     var posX=data.posX;
     var posY=data.posY;
     var obj={
       "pos_x": posX,
       "pos_y": posY
     };
-    console.log("상대방 아이디: "+recv_id, obj);
     await userModel.where({"id":send_id}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true});
     if(recv_id){
       console.log(recv_id+"의 위치가 바뀌어 전송합니다.");
