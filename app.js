@@ -11,7 +11,7 @@ var postRouter = require('./routes/post');
 var app = express();
 
 var userModel=mongoose.userModel;
-
+var socket_ids=[];
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
@@ -53,12 +53,36 @@ server=app.listen(8000,()=>{
 var io=socketio.listen(server);
 io.sockets.on('connection',(socket)=>{
   console.log("소켓연결이 되었습니다.");
+  socket.on("registerUser",(id)=>{
+    console.log("id"+"의 소켓 등록 완료");
+    socket_ids[id]=socket.id;
+  });
 
-  socket.on("stepDetection",(data)=>{// id, posX, posY
-    var userID=data.id;
+  socket.on("request_oppoPoint",(oppo_id)=>{
+    userModel.findOne({"id":oppo_id},(err,data)=>{
+      console.log(oppo_id+"의 위치를 전송합니다.");
+      let obj={
+        "pos_x":data.pos_x,
+        "pos_y":data.pos_y
+      };
+      socket.emit("oppo_changed",obj);
+    });
+  });
+
+  socket.on("stepDetection",async(data)=>{// id, posX, posY
+    var send_id=data.id;
+    var recv_id=data.oppo_id;
     var posX=data.posX;
     var posY=data.posY;
-userModel.where({"id":userID}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true},()=>{});
+    var obj={
+      "pos_x": posX,
+      "pos_y": posY
+    };
+    await userModel.where({"id":send_id}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true});
+    if(recv_id){
+      console.log(recv_id+"의 위치가 바뀌어 전송합니다.");
+      io.sockets.socket(socket_ids[recv_id]).emit("oppo_changed",obj);
+    }
   });
 
   socket.on("disconnect",(id)=>{
