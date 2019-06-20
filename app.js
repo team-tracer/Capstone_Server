@@ -54,7 +54,7 @@ var io=socketio.listen(server);
 io.sockets.on('connection',(socket)=>{
   console.log("소켓연결이 되었습니다.");
   socket.on("registerUser",(id)=>{
-    console.log("id"+"의 소켓 등록 완료");
+    console.log(id+"의 소켓 등록 완료");
     socket_ids[id]=socket.id;
   });
 
@@ -78,6 +78,7 @@ io.sockets.on('connection',(socket)=>{
       "pos_x": posX,
       "pos_y": posY
     };
+    console.log("상대방 아이디: "+recv_id, obj);
     await userModel.where({"id":send_id}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true});
     if(recv_id){
       console.log(recv_id+"의 위치가 바뀌어 전송합니다.");

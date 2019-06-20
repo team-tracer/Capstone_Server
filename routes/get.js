@@ -27,7 +27,7 @@ router.get("/loadFrd",async(req,res,next)=>{
             }
         }
         if(obj){
-	    console.log(obj);
+	    // console.log(obj);
             res.send(obj);
         }
     }
