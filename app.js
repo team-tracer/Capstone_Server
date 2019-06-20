@@ -64,8 +64,8 @@ io.sockets.on('connection',(socket)=>{
     const to_id=data.to_id;
     console.log("보낸 사람: "+from_id+ " 받은 사람: "+to_id);
     toFrom[from_id]=to_id;
-    userModel.findOne({"id":oppo_id},(err,data)=>{
-      console.log(oppo_id+"의 위치를 전송합니다.");
+    userModel.findOne({"id":to_id},(err,data)=>{
+      console.log(to_id+"의 위치를 전송합니다.");
       let obj={
         "pos_x":data.pos_x,
         "pos_y":data.pos_y
