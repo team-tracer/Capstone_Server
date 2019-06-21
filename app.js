@@ -57,24 +57,25 @@ io.sockets.on('connection',(socket)=>{
   socket.on("registerUser",(id)=>{
     console.log(id+"의 소켓 등록 완료");
     socket_ids[id]=socket.id;
+    socket.userID=id;
   });
 
-  socket.on("request_oppoPoint",(data)=>{
-    const from_id=data.from_id;
-    const to_id=data.to_id;
+  socket.on("request_oppoPoint",(socket_data)=>{
+    const from_id=socket_data.from_id;
+    const to_id=socket_data.to_id;
     console.log("보낸 사람: "+from_id+ " 받은 사람: "+to_id);
     toFrom[from_id]=to_id;
-    userModel.findOne({"id":to_id},(err,data)=>{
+    userModel.findOne({"id":from_id},(err,user_data)=>{
       console.log(to_id+"의 위치를 전송합니다.");
       let obj={
-        "pos_x":data.pos_x,
-        "pos_y":data.pos_y
+        "pos_x":user_data.pos_x,
+        "pos_y":user_data.pos_y
       };
       socket.emit("oppo_changed",obj);
     });
   });
 
-  socket.on("stepDetection",async(data)=>{// id, posX, posY
+  socket.on("stepDetection",(data)=>{// id, posX, posY
     var send_id=data.id;
     var recv_id=toFrom[send_id];
     var posX=data.posX;
@@ -83,22 +84,30 @@ io.sockets.on('connection',(socket)=>{
       "pos_x": posX,
       "pos_y": posY
     };
-    await userModel.where({"id":send_id}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true});
+    userModel.where({"id":send_id}).updateOne({"pos_x":posX, "pos_y":posY, "isTracking":true},(err,result)=>{
+    console.log("들어온 x , y: "+posX+", "+posY);
+    console.log(send_id+"의 위치를 "+recv_id+" 로 전송합니다.");
     if(recv_id){
-      console.log(recv_id+"의 위치가 바뀌어 전송합니다.");
-      io.sockets.socket(socket_ids[recv_id]).emit("oppo_changed",obj);
+      console.log(obj);
+      console.log(send_id+" 의 소켓 아이디: "+socket_ids[send_id]);
+      console.log(recv_id+" 의 소켓 아이디: "+socket_ids[recv_id]);
+      io.to(socket_ids[recv_id]).emit("oppo_changed",obj);
     }
+    });
   });
 
-  socket.on("disconnect",(id)=>{
-    userModel.findOne({"id":id},(err,res)=>{
-      if(err){
-        console.error(err);
-        return;
-      }
-      //res.posX=null;
-      //res.posY=null;
-      res.isTracking=false;
+  socket.on("disconnect",(data)=>{
+    userModel.findOne({"id":socket.userID},(userErr,userData)=>{
+     	if(userErr){
+        	console.error(userErr);
+        	return;
+      	}
+	delete socket_ids[socket.userID];
+      	userData.posX=-1;
+      	userData.posY=-1;
+      	userData.isTracking=false;
+      	userData.save();
+	console.log(socket.userID+"의 소켓이 끊어졌습니다.");
     });
   });
 
